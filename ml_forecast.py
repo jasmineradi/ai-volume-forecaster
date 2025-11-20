@@ -108,6 +108,7 @@ class MLForecaster:
         linear_pred = self.models['linear'].predict(X_test)
         linear_mae = mean_absolute_error(y_test, linear_pred)
         print(f" MAE: {linear_mae:.2f}")
+        print(f" R²: {r2_score(y_test, linear_pred):.4f}")
 
         # 2. Random Forest (ensemble method from Ch 18)
         print("\n 🌲Training Random Forest...")
@@ -120,6 +121,7 @@ class MLForecaster:
         rf_pred = self.models['rf'].predict(X_test)
         rf_mae = mean_absolute_error(y_test, rf_pred)
         print(f" MAE: {rf_mae:.2f}")
+        print(f" R²: {r2_score(y_test, rf_pred):.4f}")
 
         # 3. XGBoost (gradient boosting)
         print("\n 🚀Training XGBoost...")
@@ -133,7 +135,9 @@ class MLForecaster:
         xgb_pred = self.models['xgb'].predict(X_test)
         xgb_mae = mean_absolute_error(y_test, xgb_pred)
         print(f" MAE: {xgb_mae:.2f}")
+        print(f" R²: {r2_score(y_test, xgb_pred):.4f}")
 
+    
         # Store test predictions
         self.test_predictions = {
             'actual': y_test,
