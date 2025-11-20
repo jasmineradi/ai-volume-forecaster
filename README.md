@@ -54,7 +54,7 @@ This section summarizes the Week 8 expansion of the project.
 
 Week 8 extends the original statistical forecasting project into a full **Quantitative AI system** using machine learning models, ensemble mathematics, and probabilistic analysis.
 
-## 📊 Week 8 Project Overview
+## Week 8 Project Overview
 
 This forecasting system now includes:
 
@@ -106,7 +106,7 @@ Full Week 8 written analysis including:
 
 ---
 
-## ▶️ How to Run Week 8 System
+## How to Run Week 8 System
 
 Run the ensemble system with:
 
