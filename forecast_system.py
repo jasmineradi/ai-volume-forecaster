@@ -37,7 +37,7 @@ class QuantitativeForecaster:
         print(f"Loaded {len(self.df)} numerical data points")
         print(f"Data dimensionality: {self.df.shape}")
 
-    def quantitative_analysis(self):
+    def analyze_patterns(self):
         """Perform comprehensive quantitative analysis"""
         print("\n\033[96m 🔍 QUANTITATIVE PATTERN ANALYSIS... \033[0m")
 
@@ -81,24 +81,25 @@ class QuantitativeForecaster:
 
     def moving_average_forecast(self, window=7):
         """Simple moving average forecast"""
-        print(
-            f"\n\033[93m 📈 MOVING AVERAGE FORECAST (Window={window}) \033[0m"
-        )
+        print(f"\n\033[93m 📈 MOVING AVERAGE FORECAST (Window={window}) \033[0m")
 
         # Calculate moving average
-        self.df[f'MA_{window}'] = self.df['volume'].rolling(
-            window=window
-        ).mean()
+        self.df[f"MA_{window}"] = self.df["volume"].rolling(window=window).mean()
 
         # Use last MA value as forecast
-        last_ma = self.df[f'MA_{window}'].iloc[-1]
+        last_ma = self.df[f"MA_{window}"].iloc[-1]
 
-        # Calculate accuracy on historical data
-        valid_data = self.df[f'MA_{window}'].dropna()
-        mae = mean_absolute_error(
-            self.df['volume'][window:],
-            self.df[f'MA_{window}'][window:].shift(1).dropna()
-        )
+        # PDF logic: yesterday's MA predicts today
+        y_pred = self.df[f"MA_{window}"].shift(1)
+
+        # Trim BOTH lists to only the valid rows where MA exists
+        valid_mask = ~y_pred.isna()
+
+        y_true = self.df.loc[valid_mask, "volume"]
+        y_pred = y_pred.loc[valid_mask]
+
+        # Compute MAE on aligned series
+        mae = mean_absolute_error(y_true, y_pred)
 
         print(f"Next period forecast: {last_ma:.0f} units")
         print(f"Historical MAE: {mae:.2f} units")
@@ -132,8 +133,7 @@ class QuantitativeForecaster:
 
         # Calculate accuracy
         mae = mean_absolute_error(
-            self.df['volume'][1:],
-            self.df['exp_smooth'][:-1]
+            self.df['volume'][1:], self.df['exp_smooth'][:-1]
         )
 
         print(f"Next period forecast: {next_forecast:.0f} units")
@@ -149,7 +149,7 @@ class QuantitativeForecaster:
         decomposition = seasonal_decompose(
             self.df['volume'],
             model='additive',
-            period=365  # Yearly seasonality
+            period=365
         )
 
         # Extract components
@@ -187,6 +187,7 @@ class QuantitativeForecaster:
                 linewidth=2,
                 label='7-Day MA'
             )
+
         axes[0].set_title(
             'Historical Volume Data',
             fontsize=14,
@@ -200,14 +201,15 @@ class QuantitativeForecaster:
         weekly_avg = self.df.groupby(
             self.df.index.dayofweek
         )['volume'].mean()
-        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
         bars = axes[1].bar(
-            days,
+            ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
             weekly_avg,
             color=self.colors['blue'],
             edgecolor=self.colors['red'],
             linewidth=2
         )
+
         axes[1].set_title(
             'Average Volume by Day of Week',
             fontsize=14,
@@ -216,12 +218,11 @@ class QuantitativeForecaster:
         axes[1].set_ylabel('Average Volume')
         axes[1].grid(True, alpha=0.3, axis='y')
 
-        # Add value labels on bars
+        # Label bars
         for bar, val in zip(bars, weekly_avg):
-            height = bar.get_height()
             axes[1].text(
-                bar.get_x() + bar.get_width()/2.,
-                height,
+                bar.get_x() + bar.get_width() / 2,
+                val,
                 f'{val:.0f}',
                 ha='center',
                 va='bottom'
@@ -231,12 +232,9 @@ class QuantitativeForecaster:
         monthly_avg = self.df.groupby(
             self.df.index.month
         )['volume'].mean()
-        months = [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ]
+
         axes[2].plot(
-            months,
+            ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
             monthly_avg,
             color=self.colors['red'],
             marker='o',
@@ -245,6 +243,7 @@ class QuantitativeForecaster:
             markerfacecolor=self.colors['blue'],
             markeredgecolor=self.colors['red']
         )
+
         axes[2].set_title(
             'Average Volume by Month',
             fontsize=14,
@@ -256,50 +255,41 @@ class QuantitativeForecaster:
 
         plt.tight_layout()
         plt.savefig('volume_analysis.png', dpi=100, bbox_inches='tight')
-        print("✓ Saved visualization to volume_analysis.png")
 
+        print("✓ Saved visualization to volume_analysis.png")
         return fig
 
 
-# Small wrapper to match the PDF's main() call
 class VolumeForecaster(QuantitativeForecaster):
-    def analyze_patterns(self):
-        return self.quantitative_analysis()
+    pass
 
 
-# Main execution
 def main():
-    print("\033[91m" + "="*60)  # Red
-    print("\033[97m" + "    🇺🇸 STATISTICAL AI FORECASTING 🇺🇸")  # White
-    print("\033[94m" + "="*60 + " \033[0m")  # Blue
-    print("Week 7: Building Foundation \n")
+    print("\033[91m" + "="*60)
+    print("\033[97m" + " 🇺🇸 STATISTICAL AI FORECASTING 🇺🇸")
+    print("\033[94m" + "="*60 + "\033[0m")
+    print("Week 7: Building Foundation\n")
 
-    # Initialize forecaster  (this matches the PDF)
     forecaster = VolumeForecaster('data/historical_volumes.csv')
 
-    # Analyze patterns
     patterns = forecaster.analyze_patterns()
 
-    # Apply forecasting methods
     ma_forecast, ma_error = forecaster.moving_average_forecast(window=7)
+
     exp_forecast, exp_error = forecaster.exponential_smoothing(alpha=0.3)
 
-    # Decompose time series
     decomposition = forecaster.decompose_time_series()
 
-    # Create visualizations
     fig = forecaster.create_visualizations()
 
-    # Summary
     print("\n" + "="*60)
-    print("\033[92m ✅ ANALYSIS COMPLETE! \033[0m")
+    print("\033[92m✓ ANALYSIS COMPLETE!\033[0m")
     print("="*60)
     print("\nForecast Summary:")
     print(f"  Moving Average (7-day): {ma_forecast:.0f} units")
-    print(f"  Exponential Smoothing:  {exp_forecast:.0f} units")
+    print(f"  Exponential Smoothing: {exp_forecast:.0f} units")
     print(
-        f"  Average of methods:      "
-        f"{(ma_forecast + exp_forecast)/2:.0f} units"
+        f"  Average of methods: {(ma_forecast + exp_forecast)/2:.0f} units"
     )
 
     return forecaster
