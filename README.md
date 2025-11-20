@@ -46,3 +46,69 @@ Copy code
 
 ## Summary
 All required components have been implemented, and the full analysis can be found inside `forecast_report.md`.
+
+---
+
+# Week 8 – Quantitative AI Forecasting System  
+This section summarizes the Week 8 expansion of the project.
+
+Week 8 extends the original statistical forecasting project into a full **Quantitative AI system** using machine learning models, ensemble mathematics, and probabilistic analysis.
+
+## 📊 Week 8 Project Overview
+
+This forecasting system now includes:
+
+### Statistical Models (from Week 7)
+- Moving Average (MA-7)
+- Exponential Smoothing
+
+### Machine Learning Models (new for Week 8)
+- Linear Regression  
+- Random Forest Regression  
+- XGBoost Regression  
+
+These five models are combined through a **weighted ensemble** to generate a 13-month forecast with confidence intervals and validated performance metrics.
+
+---
+
+## Week 8 Project Files
+
+### `ml_forecast.py`
+Handles all machine learning forecasting:
+- Feature engineering  
+- Training Linear Regression, Random Forest, XGBoost  
+- Performance metrics (MAE, RMSE, R², MAPE)  
+
+### `ensemble_forecast.py`
+The main runner script:
+- Loads numerical data  
+- Trains all forecasting models  
+- Generates ensemble forecast  
+- Produces Excel workbook and visualization suite  
+
+### `volume_forecast_13months.xlsx`
+Automatically generated forecast workbook.
+
+### `ensemble_forecast_visuals.png`
+Visualization suite containing:
+- Forecast curves  
+- Confidence intervals  
+- Comparison graphs  
+
+### `final_report.md`
+Full Week 8 written analysis including:
+- Statistical pattern discovery  
+- Machine learning results  
+- Ensemble mathematics  
+- Quantitative performance metrics  
+- Confidence intervals  
+- Business impact analysis  
+
+---
+
+## ▶️ How to Run Week 8 System
+
+Run the ensemble system with:
+
+```bash
+python ensemble_forecast.py
